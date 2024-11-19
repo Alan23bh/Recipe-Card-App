@@ -3,6 +3,9 @@ import Header from "./components/Header";
 import RecipeExcerpt from "./components/RecipeExcerpt";
 import RecipeFull from "./components/RecipeFull";
 import NewRecipeForm from "./components/NewRecipeForm";
+import displayToast from "./helpers/toastHelper";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
 function App() {
@@ -28,10 +31,10 @@ function App() {
           const data = await response.json();
           setRecipes(data);
         } else {
-          console.log("Oops - could not fetch recipes!");
+          displayToast("Oops - could not fetch recipes!", "error");
         }
       } catch (e) {
-        console.error("An error occurred during the request", e);
+        displayToast("An error occurred during the request", "error");
       }
     };
     fetchAllRecipes();
@@ -54,7 +57,7 @@ function App() {
 
         setRecipes([...recipes, data.recipe]);
 
-        console.log("Recipe added SUCCESSFULLY");
+        displayToast("Recipe added SUCCESSFULLY");
 
         setShowNewRecipeForm(false);
         setNewRecipe({
@@ -67,10 +70,10 @@ function App() {
             "https://images.pexels.com/photos/9986228/pexels-photo-9986228.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1", //default
         });
       } else {
-        console.error("OOPS, COULDN'T ADD RECIPE!");
+        displayToast("OOPS, COULDN'T ADD RECIPE!", "error");
       }
     } catch (e) {
-      console.error("An error has occured during the request: ", e);
+      displayToast("An error has occured during the request: ", "error");
     }
   };
 
@@ -117,12 +120,12 @@ function App() {
           })
         );
 
-        console.log("Recipe updated!!");
+        displayToast("Recipe updated!!");
       } else {
-        console.error("OOPS, Failed to update recipe! TRY AGAIN!");
+        displayToast("OOPS, Failed to update recipe! TRY AGAIN!", "error");
       }
     } catch (e) {
-      console.error("An error has occured during the request: ", e);
+      displayToast("An error has occured during the request: ", "error");
     }
 
     setSelectedRecipe(null);
@@ -137,12 +140,15 @@ function App() {
       if (response.ok) {
         setRecipes(recipes.filter((recipe) => recipe.id !== recipeId));
         setSelectedRecipe(null);
-        console.log("Recipe deleted succesfully");
+        displayToast("Recipe deleted succesfully");
       } else {
-        console.error("Oops - Could not delete recipe! Please try again!");
+        displayToast(
+          "Oops - Could not delete recipe! Please try again!",
+          "error"
+        );
       }
     } catch (e) {
-      console.error("Something went wrong during the request", e);
+      displayToast("Something went wrong during the request", "error");
     }
   };
 
@@ -177,12 +183,19 @@ function App() {
 
   const displayedRecipes = searchTerm ? handleSearch() : recipes;
 
+  const displayAllRecipes = () => {
+    hideRecipeForm();
+    handleUnselectRecipe();
+    updateSearchTerm("");
+  };
+
   return (
     <div className="recipe-app">
       <Header
         showRecipeForm={showRecipeForm}
         updateSearchTerm={updateSearchTerm}
         searchTerm={searchTerm}
+        displayAllRecipes={displayAllRecipes}
       />
       {showNewRecipeForm && (
         <NewRecipeForm
@@ -212,6 +225,7 @@ function App() {
           ))}
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }
